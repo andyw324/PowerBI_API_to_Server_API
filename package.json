@@ -1,0 +1,24 @@
+{
+  "name": "powerbi_adal_test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server --key ./Certificates/key.pem --cert ./Certificates/cert.pem --ssl",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.9.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andyw324/PowerBI_API_to_Server_API.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andyw324/PowerBI_API_to_Server_API/issues"
+  },
+  "homepage": "https://github.com/andyw324/PowerBI_API_to_Server_API#readme",
+  "description": ""
+}
