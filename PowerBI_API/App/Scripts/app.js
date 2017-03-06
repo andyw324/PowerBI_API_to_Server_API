@@ -4,22 +4,22 @@ angular.module('todoApp', ['ngRoute','AdalAngular'])
 
     $routeProvider.when("/Home", {
         controller: "homeCtrl",
-        templateUrl: "/App/Views/Home.html",
+        templateUrl: "PowerBI_API/App/Views/Home.html",
     }).when("/TodoList", {
         controller: "todoListCtrl",
-        templateUrl: "/App/Views/TodoList.html",
+        templateUrl: "PowerBI_API/App/Views/TodoList.html",
         requireADLogin: true,
     }).when("/ToGoList", {
         controller: "toGoListCtrl",
-        templateUrl: "/App/Views/ToGoList.html",
+        templateUrl: "PowerBI_API/App/Views/ToGoList.html",
         requireADLogin: true,
     }).when("/UserData", {
         controller: "userDataCtrl",
-        templateUrl: "/App/Views/UserData.html",
+        templateUrl: "PowerBI_API/App/Views/UserData.html",
         requireADLogin: true,
     }).when("/Report", {
         controller: "reportCtrl",
-        templateUrl: "/App/Views/Report.html",
+        templateUrl: "PowerBI_API/App/Views/Report.html",
         requireADLogin: true,
     }).otherwise({ redirectTo: "/Home" });
 
