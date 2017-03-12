@@ -1,5 +1,5 @@
 'use strict';
-angular.module('todoApp')
+angular.module('powerBI_API')
 .controller('reportCtrl', ['$scope', 'adalAuthenticationService', '$http',function ($scope, adalService, $http) {
     // Add new "load report id" function to add a user defined report id into session memory
     console.log('Scope is as follows:');
@@ -10,14 +10,14 @@ angular.module('todoApp')
 	adalService.acquireToken("https://analysis.windows.net/powerbi/api");// {
     var token = window.sessionStorage.getItem('adal.access.token.keyhttps://analysis.windows.net/powerbi/api'); 
 
-	      	$scope.reportIDSelection = null;
-	      	$scope.testAccounts = [];
-      $http({
-      method: 'GET',
-      url: 'https://api.powerbi.com/beta/myorg/reports',
-      headers: {
-        'Authorization': "Bearer " + token //'Bearer ' + token
-      }}).then(function apiResponse(response) {
+  	$scope.reportIDSelection = null;
+  	$scope.testAccounts = [];
+	$http({
+	method: 'GET',
+	url: 'https://api.powerbi.com/beta/myorg/reports',
+	headers: {
+	'Authorization': "Bearer " + token //'Bearer ' + token
+	}}).then(function apiResponse(response) {
 
 	      if (response != "undefined") {
 	      	var reportIdList = [];
@@ -35,7 +35,45 @@ angular.module('todoApp')
 		      // console.log('Response:', JSON.stringify(response.data));
 			}
     	});
-      
+    $scope.pdApiGetUrl = 'https://localhost:3000/api/crime_stats?category=bicycle-theft&outcome-category=Investigation%20complete%3B%20no%20suspect%20identified&Place%20Name=E05000128';
+    //'https://localhost:3000/api/crime_stats?category=bicycle-theft&outcome-category=Investigation%20complete%3B%20no%20suspect%20identified';
+    $scope.pdItems = [];
+    
+    // makeCORSRequest('GET',$scope.pdApiGetUrl)
+    // 	.then(function (datums) {
+    // 		console.log(datums);
+    // 	})
+    // 	.catch(function (err) {
+    // 		console.error('Augh, there was an error!', err.statusText);
+    // 	});
+	makeCORSRequest('GET', $scope.pdApiGetUrl)
+	.then(function (datums) {
+	  return makeRequest('GET', datums.url);
+	  console.log(datums);
+	})
+	.then(function (moreDatums) {
+	  console.log(moreDatums);
+	})
+	.catch(function (err) {
+	  console.error('Augh, there was an error!', err.statusText);
+	});
+   //  $scope.getItems = function(url) {
+   //  	if (typeof url != "undefined") {
+			// // $http.get($scope.pdApiGetUrl)
+	  // //           .success(function(data, status) {
+	  // //               $scope.pdItems = data;
+	  // //           })
+	  // //           .error(function(data, status) {
+	  // //               alert("Error");
+	  // //           });
+			// var xhr = createCORSRequest("GET",url);
+			// $.when(xhr).done
+			// console.log('xhr:');
+			// console.log(xhr);
+   //  	}
+        
+   //  };
+
     $scope.showSelectedValue = function (mySelect){
     	console.log(mySelect);
     	$scope.selectedReportId = mySelect;
@@ -79,8 +117,9 @@ angular.module('todoApp')
 
 		// Embed the report and display it within the div container.
 		var report = powerbi.embed(reportContainer, config);
-		initializeDataSelection(report,$('#dataSelectedContainer'),$scope);
-		console.log($scope.dataSelected);
+		
+		initializeDataSelection(report,$('#getApiUrl'),$('#resultsIframe'),$scope,$http);
+		// console.log($scope.dataSelected);
 		// var qryString = getDataSelection(report);//,qryString);
 		// console.log(qryString);
 
@@ -94,5 +133,7 @@ angular.module('todoApp')
 
 
     };
+
 }]);
+
 

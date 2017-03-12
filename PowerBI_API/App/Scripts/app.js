@@ -1,18 +1,10 @@
 ﻿'use strict';
-angular.module('todoApp', ['ngRoute','AdalAngular'])
+angular.module('powerBI_API', ['ngRoute','AdalAngular'])
 .config(['$routeProvider', '$httpProvider', 'adalAuthenticationServiceProvider', function ($routeProvider, $httpProvider, adalProvider) {
 
     $routeProvider.when("/Home", {
         controller: "homeCtrl",
         templateUrl: "PowerBI_API/App/Views/Home.html",
-    }).when("/TodoList", {
-        controller: "todoListCtrl",
-        templateUrl: "PowerBI_API/App/Views/TodoList.html",
-        requireADLogin: true,
-    }).when("/ToGoList", {
-        controller: "toGoListCtrl",
-        templateUrl: "PowerBI_API/App/Views/ToGoList.html",
-        requireADLogin: true,
     }).when("/UserData", {
         controller: "userDataCtrl",
         templateUrl: "PowerBI_API/App/Views/UserData.html",
@@ -49,7 +41,7 @@ angular.module('todoApp', ['ngRoute','AdalAngular'])
 // with the report and will call the generateQryString function to generate the personal data API GET URL based
 // on the Power BI API returned JSON.
 
-function initializeDataSelection(report, $dataSelectedContainer, $scope) {
+function initializeDataSelection(report, $getApiUrl, $scope, $http) {
   report.on('dataSelected', event => {
     console.log('dataSelected: ', event);
     var qryString = '';
@@ -62,7 +54,12 @@ function initializeDataSelection(report, $dataSelectedContainer, $scope) {
     $scope.dataSelected = JSON.stringify(data, null, '  ');
     console.log('qryString: ' + qryString);
     // $dataSelectedContainer.text(JSON.stringify(data, null, '  '));
-    $dataSelectedContainer.text(qryString);
+    $scope.pdApiGetUrl = qryString;
+    // $scope.getItems();
+    // console.log($scope);
+    $getApiUrl.text(qryString);
+    $('#resultsIframe').attr('src',qryString);
+
 
   });
 }
@@ -80,7 +77,7 @@ function generateQryString(data) {
                 console.log(item[j]);
                 text = item[j].target.column + "=" + encodeURIComponent(item[j].equals);
                 if (qryString === "") {
-                    qryString = "http://localhost:3000/api/crime_stats?" + text;//encodeURIComponent(text); // text.replace(/ /g,"%20");
+                    qryString = "https://localhost:3000/api/crime_stats?" + text;//encodeURIComponent(text); // text.replace(/ /g,"%20");
                 } else {
                 qryString += "&" + text;//encodeURIComponent(text); //text.replace(/ /g,"%20");
                 }
@@ -90,4 +87,75 @@ function generateQryString(data) {
     return qryString;
 }
 
+
+// Create the XHR object.
+function makeCORSRequest(method, url) {
+    return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        // if ("withCredentials" in xhr) {
+        // // XHR for Chrome/Firefox/Opera/Safari.
+        // xhr.open(method, url, true);
+        // } else if (typeof XDomainRequest != "undefined") {
+        // // XDomainRequest for IE.
+        // xhr = new XDomainRequest();
+        // xhr.open(method, url);
+        // } else {
+        // // CORS not supported.
+        // xhr = null;
+        // }
+        // return xhr;
+        xhr.open(method, url);
+        xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.respose);
+            } else {
+                reject({
+                    status: this.status,
+                    tatusText: xhr.statusText
+                });
+            }
+        };
+        xhr.onerror = function () {
+            reject({
+                status: this.status,
+                tatusText: xhr.statusText
+            }); 
+        };
+        xhr.send();
+    });
+}
+
+
+
+// Helper method to parse the title tag from the response.
+// function getTitle(text) {
+//   return text.match('<title>(.*)?</title>')[1];
+// }
+
+// Make the actual CORS request.
+// function makeCorsRequest(url) {
+//   // This is a sample server that supports CORS.
+//   //var url = 'http://html5rocks-cors.s3-website-us-east-1.amazonaws.com/index.html';
+
+//   var xhr = createCORSRequest('GET', url);
+//   if (!xhr) {
+//     alert('CORS not supported');
+//     return;
+//   }
+
+//   // Response handlers.
+//   xhr.onload = function() {
+//     var text = xhr.responseText;
+//     var title = getTitle(text);
+//     alert('Response from CORS request to ' + url + ': ' + title);
+//   };
+
+//   xhr.onerror = function() {
+//     alert('Woops, there was an error making the request.');
+//   };
+
+//   xhr.send();
+// }
+
+//function getAPIData()
 

@@ -1,5 +1,5 @@
 ﻿'use strict';
-angular.module('todoApp')
+angular.module('powerBI_API')
 .controller('userDataCtrl', ['$scope', 'adalAuthenticationService', function ($scope, adalService) {
     
     $scope.claims = [];

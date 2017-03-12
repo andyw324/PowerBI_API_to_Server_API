@@ -11,10 +11,16 @@
             <button ng-click="loadReport();" class="btn btn-default">Load Report</button>
         </span>
         <br>
+        <br>
     </div>
 
     <!-- <div ng-hide="true" id="dataSelectedContainer"></div> -->
-    <div id="dataSelectedContainer"></div>
+    <div id="getApiUrl"></div>
+    <div id="dataSelectedContainer" ng-init="getItems()">
+        <ul>
+                <li ng-repeat="item in pdItems.results"> {{item.persistent_id}} </li>
+        </ul>
+    </div>
 	<div id="reportContainer" style="height: 500px;">
 	</div>
 </div>
