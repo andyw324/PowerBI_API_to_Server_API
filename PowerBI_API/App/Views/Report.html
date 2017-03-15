@@ -15,12 +15,58 @@
     </div>
 
     <!-- <div ng-hide="true" id="dataSelectedContainer"></div> -->
-    <div id="getApiUrl"></div>
-    <div id="dataSelectedContainer" ng-init="getItems()">
-        <ul>
-                <li ng-repeat="item in pdItems.results"> {{item.persistent_id}} </li>
-        </ul>
+    <div id="getApiUrl">
+        Refresh PD onselection?
+        <input id="pdRefreshOn" class="CheckBox" type="checkbox" checked data-toggle="toggle"></input>
+        <!-- <br> -->
+        <button ng-click="" class="btn btn-default">Refresh PD List</button>
     </div>
-	<div id="reportContainer" style="height: 500px;">
-	</div>
+    <div id="reportContainer" style="height: 500px;">
+    </div>
+<!--     <div ng-repeat="item in pdItems">
+        {{item['Place Name']}}
+    </div> -->
+    <!-- <div ng-app="powerBI_API" ng-controller="reportCtrl"> -->
+    <div>
+        <table id="apiResults" class="table table-bordered table-striped code-table">
+            <thead>
+                <tr>
+                    <th>Place Name</th>
+                    <th>category</th>
+                    <th>context</th>
+                    <th>id</th>
+                    <th>latitude</th>
+                    <th>location_subtype</th>
+                    <th>location_type</th>
+                    <th>longitude</th>
+                    <th>month</th>
+                    <th>outcome-category</th>
+                    <th>outcome-date</th>
+                    <th>persistent_id</th>
+                    <th>street-id</th>
+                    <th>street-name</th>
+                </tr>
+            </thead>
+            <!-- <tbody>
+                <tr id="tableData"> -->
+<!--                 <tr ng-repeat="field in pdItems">
+                    <td>{{ field['Place Name'] }}</td>
+                    <td>{{ field.category }}</td>
+                    <td>{{ field.context }}</td>
+                    <td>{{ field.id }}</td>
+                    <td>{{ field.latitude }}</td>
+                    <td>{{ field.location_subtype }}</td>
+                    <td>{{ field.location_type }}</td>
+                    <td>{{ field.longitude }}</td>
+                    <td>{{ field.month }}</td>
+                    <td>{{ field['outcome-category'] }}</td>
+                    <td>{{ field['outcome-date'] }}</td>
+                    <td>{{ field.persistent_id }}</td>
+                    <td>{{ field['street-id'] }}</td>
+                    <td>{{ field['street-name'] }}</td> -->
+<!--                 </tr> 
+            </tbody>   -->         
+        </table>
+    </div>
+    <div id="apiResponse"></div>
 </div>

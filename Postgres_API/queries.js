@@ -64,6 +64,7 @@ function getQueryResults(req, res, next) {
   var symbol;
   var dataType;
   var typePrefix = '';
+  var qryValue;
 
   for (field in fieldList){
     
@@ -90,7 +91,12 @@ function getQueryResults(req, res, next) {
     };
 
     if (!(typeof whereValue === 'undefined')){
-      whereClause += '"' + field + '" = ' + typePrefix + symbol + decodeURIComponent(whereValue) + symbol;
+      whereClause += '"' + field + '" = ' + typePrefix + symbol;
+      qryValue = decodeURIComponent(whereValue);
+      if (dataType === 'date') {
+         qryValue = qryValue.replace(/\\/g,'-').replace(/\//g,'-');
+      }
+      whereClause += qryValue + symbol;
     };
   }
 
