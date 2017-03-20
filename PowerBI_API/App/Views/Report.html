@@ -1,5 +1,5 @@
-<div class="report-container" >
-	<h1 id='report-container-header'>Power BI Report</h1>
+<div class="report-selection" >
+	<h1 id='report-selection-header'>Report selection and drill down options</h1>
 	<div class="report-id-input">
         <select ng-model="reportIDSelection"
         		ng-options="item.id as item.name for item in testAccounts"
@@ -9,26 +9,42 @@
         </select>
         <span class="report-id-input-btn">
             <button ng-click="loadReport();" class="btn btn-default">Load Report</button>
+        
+    
         </span>
-        <br>
-        <br>
     </div>
-
+    <div class="likesReport"></div>
     <!-- <div ng-hide="true" id="dataSelectedContainer"></div> -->
     <div id="getApiUrl">
-        Refresh PD onselection?
-        <input id="pdRefreshOn" class="CheckBox" type="checkbox" checked data-toggle="toggle"></input>
-        <!-- <br> -->
-        <button ng-click="" class="btn btn-default">Refresh PD List</button>
     </div>
+    <div>
+        Refresh PD onselection?
+        <input id="pdRefreshOn" class="CheckBox" type="checkbox" checked data-toggle="toggle" ng-change="refreshButtonStatus()" ng-model="myData"></input>
+        <!-- <br> -->
+        <button ng-click="hideThumbs();" class="btn btn-default" id="pdRefreshButton">Refresh PD List</button>
+        <button ng-click="clearTable();" class="btn btn-default" id="pdClearTableButton">Clear PD List</button>
+    </div>
+</div>
+<div class="report-container" >
+    <h1 id='report-container-header'>Power BI Report</h1>
     <div id="reportContainer" style="height: 500px;">
+    </div>
+    <div id="userExperience" ng-init="initThumbs()" ng-show="displayThumb();" style="height: 50px;">
+        <a href="#/Report" class="btn btn-info btn-lg" ng-click="likeReport();">
+          Like <span class="glyphicon glyphicon-thumbs-up"></span> 
+        </a>
+        <a href="#/Report" class="btn btn-info btn-lg" ng-click="dislikeReport();">
+          <span class="glyphicon glyphicon-thumbs-down"></span> Dislike
+        </a>
     </div>
 <!--     <div ng-repeat="item in pdItems">
         {{item['Place Name']}}
     </div> -->
     <!-- <div ng-app="powerBI_API" ng-controller="reportCtrl"> -->
     <div>
-        <table id="apiResults" class="table table-bordered table-striped code-table">
+        <p id="tableOfResults"></p>
+
+        <table class="table table-bordered table-striped code-table" ng-show="showTable();">
             <thead>
                 <tr>
                     <th>Place Name</th>
@@ -47,9 +63,9 @@
                     <th>street-name</th>
                 </tr>
             </thead>
-            <!-- <tbody>
-                <tr id="tableData"> -->
-<!--                 <tr ng-repeat="field in pdItems">
+            <tbody id="apiResults">
+                <!-- <tr id="tableData">
+                <tr ng-repeat="field in pdItems">
                     <td>{{ field['Place Name'] }}</td>
                     <td>{{ field.category }}</td>
                     <td>{{ field.context }}</td>
@@ -63,9 +79,9 @@
                     <td>{{ field['outcome-date'] }}</td>
                     <td>{{ field.persistent_id }}</td>
                     <td>{{ field['street-id'] }}</td>
-                    <td>{{ field['street-name'] }}</td> -->
-<!--                 </tr> 
-            </tbody>   -->         
+                    <td>{{ field['street-name'] }}</td>
+               </tr> -->
+            </tbody>       
         </table>
     </div>
     <div id="apiResponse"></div>

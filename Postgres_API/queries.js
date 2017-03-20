@@ -10,7 +10,7 @@ var connectionString = 'postgres://localhost:5432/hodac_demo';
 var db = pgp(connectionString);
 
 function getAllWards(req, res, next) {
-  db.any('select * from crime_stats')
+  db.any('select * from uk_wards')
     .then(function (data) {
       res.status(200)
         .json({
@@ -26,6 +26,7 @@ function getAllWards(req, res, next) {
 
 function getSingleWard(req, res, next) {
   var wardID = parseInt(req.params.id);
+  console.log('Getting one ward - id:', wardID);
   db.one('select * from uk_wards where gid = $1', wardID)
     .then(function (data) {
       res.status(200)
@@ -60,16 +61,21 @@ function getQueryResults(req, res, next) {
         'id':'integer'};
 
   var whereClause = '';
-  var whereValue;
+  var whereValue, whereItem, i, iLen;
   var symbol;
-  var dataType;
+  var dataType, timeStamp;
   var typePrefix = '';
   var qryValue;
+
+  console.log(req['query']);
 
   for (field in fieldList){
     
     whereValue = req['query'][field];
     dataType = fieldList[field];
+
+    // console.log("whereValue:",whereValue);
+    // console.log("dataType:", dataType);
     
     switch (dataType)
     {
@@ -86,17 +92,50 @@ function getQueryResults(req, res, next) {
        typePrefix = '';
     }
 
-    if (whereClause != '' && !(typeof whereValue === 'undefined')){ //'undefined')){
-      whereClause += ' AND ';
-    };
 
-    if (!(typeof whereValue === 'undefined')){
-      whereClause += '"' + field + '" = ' + typePrefix + symbol;
-      qryValue = decodeURIComponent(whereValue);
-      if (dataType === 'date') {
-         qryValue = qryValue.replace(/\\/g,'-').replace(/\//g,'-');
-      }
-      whereClause += qryValue + symbol;
+    if (typeof whereValue != 'undefined') {
+      if (whereClause != ''){ //'undefined')){
+        // whereClause += ' AND ';
+        whereClause += ' AND ';
+      };
+      
+        whereClause += '"' + field + '" IN ' + '(';
+      
+      // console.log("field:", field);
+      if (typeof whereValue === 'object') {
+        // console.log("Length of Date Obj:", whereValue.length);
+        for (i=0, iLen = whereValue.length; i < iLen; i++) { //  whereItem in whereValue) {
+          // console.log("date " + i + ":", whereValue[i]);
+          if (!(typeof whereValue[i] === 'undefined')) {
+            // whereClause += '"' + field + '" IN ' + '(' + typePrefix + symbol;
+            // whereClause += field + ' = ' + typePrefix + symbol;
+            whereClause += typePrefix + symbol;
+            qryValue = decodeURIComponent(whereValue[i]);
+            if (dataType === 'date') {
+               qryValue = qryValue.replace(/\\/g,'-').replace(/\//g,'-');
+            };
+            whereClause += qryValue + symbol;
+            if (i === iLen - 1) {
+               whereClause += ')';
+            } else {
+              whereClause += ',';
+            };
+          };
+          //whereClause = whereClause.slice(0,whereClause.length - 1) + ')';
+        }
+      } else {
+        // if (!(typeof whereValue === 'undefined')){
+          // whereClause += '"' + field + '" IN ' + '(' + typePrefix + symbol;
+          // whereClause += field + ' = ' + typePrefix + symbol;
+          whereClause += typePrefix + symbol;
+          qryValue = decodeURIComponent(whereValue);
+          if (dataType === 'date') {
+             qryValue = qryValue.replace(/\\/g,'-').replace(/\//g,'-');
+          };
+          whereClause += qryValue + symbol + ')';
+        // };
+      };
+
     };
   }
 
@@ -106,7 +145,10 @@ function getQueryResults(req, res, next) {
 
   // // ----------------- end of Where Clause statement generation
 
+  timeStamp = new Date();
+  console.log('TimeStamp:', timeStamp.toUTCString());
   console.log('Query String: select * from crime_stats' + whereClause);
+
   // res = 'select * from crime_stats' + whereClause;
   db.any('select * from crime_stats' + whereClause)
     .then(function (data) {

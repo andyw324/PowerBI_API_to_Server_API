@@ -43,20 +43,27 @@ angular.module('powerBI_API', ['ngRoute','AdalAngular'])
 // using the Power BI API - namely the report.on('dataSelected'... call.
 
 function generateQryString(data) {
-    var i, j, qryString, text, iLen, jLen, item;
+    var i, j, qryString, text, iLen, jLen, item, nDate, nMonth;
     var comparisonSymbol;
     for (i=0, iLen = data.dataPoints.length, qryString = ""; i < iLen; i++) {
         item = data.dataPoints[i].identity;
         for (j=0, jLen = item.length, text = ""; j < jLen; j++) {
-            if (item[j].equals != "") {
+            // if (item[j].equals != "") {
                 console.log(item[j]);
-                text = item[j].target.column + "=" + encodeURIComponent(item[j].equals);
+                if (item[j].target.column === 'month') {
+                    // console.log('typeOf Date:', item[j].equals.getDate() + "-" + item[j].equals.getMonth() + "-" + item[j].equals.getFullYear());
+                    nDate = item[j].equals.getDate();
+                    nMonth = item[j].equals.getMonth();
+                    text = item[j].target.column + "=" + nDate.toString().pad('00',true) + "-" + nMonth.toString().pad('00',true) + "-" + item[j].equals.getFullYear();
+                } else {
+                    text = item[j].target.column + "=" + encodeURIComponent(item[j].equals);
+                }
                 if (qryString === "") {
                     qryString = "https://localhost:3000/api/crime_stats?" + text;//encodeURIComponent(text); // text.replace(/ /g,"%20");
                 } else {
                 qryString += "&" + text;//encodeURIComponent(text); //text.replace(/ /g,"%20");
                 }
-            }
+            // }
         }
     }
     return qryString;
@@ -83,7 +90,7 @@ function makeCORSRequest(method, url) {
         // xhr.responseType = 'json';
         xhr.onload = function () {
             if (this.status >= 200 && this.status < 300) {
-                //console.log("xhr response:", xhr.response);
+                // console.log("xhr response:", xhr.response);
                 resolve(JSON.parse(xhr.responseText));
             } else {
                 reject({
@@ -106,42 +113,50 @@ function makeCORSRequest(method, url) {
 // with the report and will call the generateQryString function to generate the personal data API GET URL based
 // on the Power BI API returned JSON.
 
-function initializeDataSelection(report, $getApiUrl, $apiResponse, $apiResults, $scope, $http) {
-  report.on('dataSelected', event => {
-    console.log('dataSelected: ', event);
+function getQueryString(data, $getApiUrl, $scope) {
+  // report.on('dataSelected', event => {
+  //   console.log('dataSelected: ', event);
     var qryString = '';
-    var data = event.detail;
+    // var data = event.detail;
     if (typeof data != "undefined") {
         qryString = generateQryString(data); //JSON.stringify(data.dataPoints[0].identity[0], null, '   ');
     } else {
         qryString = ""
     }
-    $scope.dataSelected = JSON.stringify(data, null, '  ');
+    // $scope.dataSelected = data; //JSON.stringify(data, null, '  ');
     console.log('qryString: ' + qryString);
     // $dataSelectedContainer.text(JSON.stringify(data, null, '  '));
     $scope.pdApiGetUrl = qryString;
-    // $scope.getItems();
-    // console.log($scope);
     $getApiUrl.text(qryString);
-    $('#resultsIframe').attr('src',qryString);
+    return qryString;
+}
 
-    if ($('#pdRefreshOn').checked) {
+function populateTable($apiResults, $scope) {
+  
+    // var qryString = getQueryString(event.detail,$getApiUrl,$scope);
+
+
+    // console.log("Refreshed on?",$scope.pdRefreshAuto);
+
+
         makeCORSRequest('GET', $scope.pdApiGetUrl)
         .then(function(response) {
-          // return makeRequest('GET', datums.url);
-          // console.log(response);
-          // console.log("Success!",response);
-          $scope.pdItems = response.data;//.records;
-          $apiResponse.text(JSON.stringify(response.data));//$scope.pdItems));
-          // var table = document.getElementById("apiResults");
-          
+            // return makeRequest('GET', datums.url);
+            // console.log(response);
+            // console.log("Success!",response);
+            // $scope.pdItems = response.data;//.records;
+            // $apiResponse.text(JSON.stringify(response.data));//$scope.pdItems));
+            // var table = document.getElementById("apiResults");
 
-          var i, len, item, htmlText;
-          var itemList = [];
 
-          for (i=0, len = response.data.length, htmlText='<tbody>'; i < len; i++){
+            var i, len, item, htmlText;
+            var itemList = [];
+
+            $apiResults.innerHTML = "";
+
+            for (i=0, len = response.data.length, htmlText=''; i < len; i++){
             item = response.data[i];
-            
+
             htmlText += "<tr><td>" + item['Place Name'] + "</td>" +
                         "<td>" + item.category + "</td>" +
                         "<td>" + item.context + "</td>" +
@@ -156,23 +171,149 @@ function initializeDataSelection(report, $getApiUrl, $apiResponse, $apiResults, 
                         "<td>" + item.persistent_id + "</td>" +
                         "<td>" + item['street-id'] + "</td>" +
                         "<td>" + item['street-name'] + "</td></tr>"
-          }
-          htmlText += "</tbody>"
-          $apiResults.append(htmlText);
-      }
+            }
+            // htmlText += "</tbody>"
+            $apiResults.append(htmlText);
 
+    
       // $scope.pdItems = itemList;
       // console.log('htmlText:',htmlText);
       // console.log("$scope.pdItems",$scope.pdItems);
 
 
-    }, function(error) {
-        console.error("Failed!", error);
-        // console.log("An error occured");
-    });
+            }, function(error) {
+                console.error("Failed!", error);
+                // console.log("An error occured");
+        });
      // console.log('pd_items:',$scope.pdItems);
 
+}
+
+
+
+
+function initializeDataSelection(report, $getApiUrl, $apiResponse, $apiResults, $scope, $http) {
+  report.on('dataSelected', event => {
+    console.log('dataSelected: ', event);
+    var qryString = getQueryString(event.detail,$getApiUrl,$scope);
+    // var qryString = '';
+    // var data = event.detail;
+    // if (typeof data != "undefined") {
+    //     qryString = generateQryString(data); //JSON.stringify(data.dataPoints[0].identity[0], null, '   ');
+    // } else {
+    //     qryString = ""
+    // }
+    // $scope.dataSelected = data; //JSON.stringify(data, null, '  ');
+    // console.log('qryString: ' + qryString);
+    // // $dataSelectedContainer.text(JSON.stringify(data, null, '  '));
+    // $scope.pdApiGetUrl = qryString;
+    // // $scope.getItems();
+    // // console.log($scope);
+    // $getApiUrl.text(qryString);
+    $('#resultsIframe').attr('src',qryString);
+
+    console.log("Refreshed on?",$scope.pdRefreshAuto);
+
+    if ($('#pdRefreshOn').checked) {
+        makeCORSRequest('GET', $scope.pdApiGetUrl)
+        .then(function(response) {
+            // return makeRequest('GET', datums.url);
+            // console.log(response);
+            // console.log("Success!",response);
+            // $scope.pdItems = response.data;//.records;
+            $apiResponse.text(JSON.stringify(response.data));//$scope.pdItems));
+            // var table = document.getElementById("apiResults");
+
+
+            var i, len, item, htmlText;
+            var itemList = [];
+
+            $apiResults.innerHTML = "";
+
+            for (i=0, len = response.data.length, htmlText=''; i < len; i++){
+            item = response.data[i];
+
+            htmlText += "<tr><td>" + item['Place Name'] + "</td>" +
+                        "<td>" + item.category + "</td>" +
+                        "<td>" + item.context + "</td>" +
+                        "<td>" + item.id + "</td>" +
+                        "<td>" + item.latitude + "</td>" +
+                        "<td>" + item.location_subtype + "</td>" +
+                        "<td>" + item.location_type + "</td>" +
+                        "<td>" + item.longitude + "</td>" +
+                        "<td>" + item.month + "</td>" +
+                        "<td>" + item['outcome-category'] + "</td>" +
+                        "<td>" + item['outcome-date'] + "</td>" +
+                        "<td>" + item.persistent_id + "</td>" +
+                        "<td>" + item['street-id'] + "</td>" +
+                        "<td>" + item['street-name'] + "</td></tr>"
+            }
+            // htmlText += "</tbody>"
+            $apiResults.append(htmlText);
+
+    
+      // $scope.pdItems = itemList;
+      // console.log('htmlText:',htmlText);
+      // console.log("$scope.pdItems",$scope.pdItems);
+
+
+            }, function(error) {
+                console.error("Failed!", error);
+                // console.log("An error occured");
+        });
+     // console.log('pd_items:',$scope.pdItems);
+    } else {
+        document.getElementById("tableOfResults").innerHTML = 'To view "Personal Data" drill down results click "Refresh PD List"';
+    }
   });
+}
+
+
+function applyFilters(report, $scope) {
+    report.on('filtersApplied', event => {
+        console.log('filtersApplied: ', event);
+        const filters = event.details.filters;
+        this.appliedFilters = filters;
+    });
+}
+
+
+
+String.prototype.toDate = function(format)
+{
+  var normalized      = this.replace(/[^a-zA-Z0-9]/g, '-');
+  var normalizedFormat= format.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
+  var formatItems     = normalizedFormat.split('-');
+  var dateItems       = normalized.split('-');
+
+  var monthIndex  = formatItems.indexOf("mm");
+  var dayIndex    = formatItems.indexOf("dd");
+  var yearIndex   = formatItems.indexOf("yyyy");
+  var hourIndex     = formatItems.indexOf("hh");
+  var minutesIndex  = formatItems.indexOf("ii");
+  var secondsIndex  = formatItems.indexOf("ss");
+
+  var today = new Date();
+
+  var year  = yearIndex>-1  ? dateItems[yearIndex]    : today.getFullYear();
+  var month = monthIndex>-1 ? dateItems[monthIndex]-1 : today.getMonth()-1;
+  var day   = dayIndex>-1   ? dateItems[dayIndex]     : today.getDate();
+
+  var hour    = hourIndex>-1      ? dateItems[hourIndex]    : today.getHours();
+  var minute  = minutesIndex>-1   ? dateItems[minutesIndex] : today.getMinutes();
+  var second  = secondsIndex>-1   ? dateItems[secondsIndex] : today.getSeconds();
+
+  return new Date(year,month,day,hour,minute,second);
+}
+
+String.prototype.pad = function(pad, padLeft) {
+  if (typeof this === 'undefined') 
+    return pad;
+  if (padLeft) {
+    return (pad + this).slice(-pad.length);
+  } else {
+    return (this + pad).substring(0, pad.length);
+  }
 }
 
 // Helper method to parse the title tag from the response.

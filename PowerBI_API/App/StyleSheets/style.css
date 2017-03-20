@@ -1,5 +1,39 @@
-input.CheckBox
+button.btn
 {
-	margin-right: 30px;
+	margin-left: 30px;
+	/*displa: inline;*/
+}
 
+div.likesReport
+{
+	/*border: ;*/
+	border-style: solid;
+	width: 300px;
+	height: 80px;
+	display: inline;
+	float: right;
+}
+
+div.report-id-input
+{
+	border-style: solid;
+	width: 50%;
+}
+
+div.report-id-input
+{
+	display: inline;
+}
+
+#report-selection-header
+{
+	font-size: large;
+	font-weight: bold;
+}
+
+#userExperience, #userExperience
+{
+	float: right;
+	height: 20px;
+	border-style: solid;
 }
