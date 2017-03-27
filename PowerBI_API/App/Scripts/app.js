@@ -15,28 +15,227 @@ angular.module('powerBI_API', ['ngRoute','AdalAngular'])
         requireADLogin: true,
     }).otherwise({ redirectTo: "/Home" });
 
-    var endpoints = {
+    // var endpoints = {
 
-        // Map the location of a request to an API to a the identifier of the associated resource
-        "https://api.powerbi.com": "https://analysis.windows.net/powerbi/api",
-    };
+    //     // Map the location of a request to an API to a the identifier of the associated resource
+    //     "https://api.powerbi.com": "https://analysis.windows.net/powerbi/api",
+    // };
 
     adalProvider.init(
-        {
-            instance: 'https://login.microsoftonline.com/',
-            tenant: 'homeofficegsigovuk.onmicrosoft.com',
-            clientId: '2ad5dba7-b359-483c-89e2-3da5878eb8e5',
-            extraQueryParameter: 'nux=1',
-            endpoints: endpoints,
-            //cacheLocation: 'localStorage', // enable this for IE, as sessionStorage does not work for localhost.  
-            // Also, token acquisition for the To Go API will fail in IE when running on localhost, due to IE security restrictions.
-        },
+        paramJSON,
         $httpProvider
         );
    // console.log(adalProvider.config.endpoints);
 }]);
 
 
+function testGetUsingXMLHttp($token, $getUrl) {
+    var request = new XMLHttpRequest();
+
+    request.open('GET', $getUrl);//'https://api.powerbi.com/v1.0/myorg/datasets');
+    request.setRequestHeader('Authorization', 'Bearer ' + $token);
+
+    request.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        console.log('Status:', this.status);
+        console.log('Headers:', this.getAllResponseHeaders());
+        console.log('Body:', this.responseText);
+      }
+    };
+
+    request.send();
+}
+
+function testGetUsingHttp($token, $http, $apiURL) {
+    $http({
+        method: 'GET',
+        url: '$apiURL',
+        headers: {
+            'Authorization': "Bearer " + token
+        }}).then(function(response) {
+            console.log("GET Response:", response);
+
+        });
+}
+
+function postActionLoadTitle ($iFrame, $token) {
+    var messageStructure = {
+        action: "loadTile",
+        tokenType: "Bearer",
+        accessToken: $token,
+        height: 500,
+        width: 500
+    };
+    var message = JSON.stringify(messageStructure);
+
+    // Push the message
+    $iFrame.contentWindow.postMessage(message, "*");
+}
+
+function testDelUsingXMLHttp($token) {
+    
+
+    var request = new XMLHttpRequest();
+
+    request.open('DELETE', 'https://api.powerbi.com/v1.0/myorg/datasets/0f36d0f7-cc05-4cad-b37c-6ee0b5eeb473');
+
+    request.setRequestHeader('Authorization', 'Bearer ' + $token);
+
+    request.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        console.log('Status:', this.status);
+        console.log('Headers:', this.getAllResponseHeaders());
+        console.log('Body:', this.responseText);
+      }
+    };
+
+    request.send();
+
+}
+
+
+function postDataXMLHttp($token,$body,$url) {
+    var request = new XMLHttpRequest();
+
+    request.open('POST', $url);
+
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.setRequestHeader('Authorization', 'Bearer ' + $token);
+
+    request.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        console.log('Status:', this.status);
+        console.log('Headers:', this.getAllResponseHeaders());
+        console.log('Body:', this.responseText);
+      }
+    };
+
+    var body = $body;
+    // {"rows":[
+    //                     {
+    //                     "LikeDislike" :"Like",
+    //                     "Report" :selectedReportId,
+    //                     "TimeStamp" :dateTimeNow,
+    //                     "ReportedBy" :userName,
+    //                     "value": 1
+    //                     }
+    //                  ]};
+
+    request.send(JSON.stringify(body));
+}
+
+function createLikeDislikeDatasetHttp($token, $http) {
+
+    var body = {
+                        "name" : "APILikeDislike",
+                        "tables" : [{
+                                        "name" : "RawLikeDislike",
+                                        "columns" : [
+                                            {
+                                                "name": "LikeDislike", 
+                                                "dataType" : "string"
+                                            },
+                                            {
+                                                "name": "Report",
+                                                "dataType" : "string"
+                                            },
+                                            {
+                                                "name": "TimeStamp",
+                                                "dataType" : "DateTime"                                                
+                                            },
+                                            {
+                                                "name": "ReportedBy",
+                                                "dataType" : "string"                                                
+                                            },
+                                            {
+                                                "name": "value",
+                                                "dataType" : "Int64"                                                
+                                            }
+                                        ]
+
+                                        
+                        }]
+
+        };
+    // request.setRequestHeader('Authorization', 'Bearer ' + $token);
+        var postUrl = 'https://api.powerbi.com/v1.0/myorg/datasets';
+        var req = {
+            method: 'POST',
+            url: postUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + $token
+            },
+            data: body //JSON.stringify(dataToPost)
+        };
+    $http(req).then(function(response) {
+        console.log('response' , response);
+    });
+
+}
+
+function createLikeDislikeDataset($token) {
+    // console.log("Create DS Token:",$token);
+    var request = new XMLHttpRequest();
+    // request.setRequestHeader('Authorization', 'Bearer ' + $token);
+    request.open('POST', 'https://api.powerbi.com/v1.0/myorg/datasets',true);
+
+
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.setRequestHeader('Authorization', 'Bearer ' + $token);
+
+    request.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        console.log('Status:', this.status);
+        console.log('Headers:', this.getAllResponseHeaders());
+        console.log('Body:', this.responseText);
+        console.log('this:', this);
+
+      }
+    };
+
+    // var powerBIDatasetsApiUrl = "https://api.powerbi.com/v1.0/myorg/datasets";
+    // var dataSetJSON;
+
+        // selectedReportId = $scope.selectedReportId;
+        // dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-ddTHH:mm:sss") + 'Z';
+    var body = {
+                        "name" : "APILikeDislike",
+                        "tables" : [{
+                                        "name" : "RawLikeDislike",
+                                        "columns" : [
+                                            {
+                                                "name": "LikeDislike", 
+                                                "dataType" : "string"
+                                            },
+                                            {
+                                                "name": "Report",
+                                                "dataType" : "string"
+                                            },
+                                            {
+                                                "name": "TimeStamp",
+                                                "dataType" : "DateTime"                                                
+                                            },
+                                            {
+                                                "name": "ReportedBy",
+                                                "dataType" : "string"                                                
+                                            },
+                                            {
+                                                "name": "value",
+                                                "dataType" : "Int64"                                                
+                                            }
+                                        ]
+
+                                        
+                        }]
+
+        };
+    // request.setRequestHeader('Authorization', 'Bearer ' + $token);
+    console.log("body:",body);
+    request.send(JSON.stringify(body)); 
+
+
+}
 
 
 // generates the GET URI including query string for the call to the server side REST API. Query string created
@@ -194,7 +393,19 @@ function populateTable($apiResults, $scope) {
 
 function initializeDataSelection(report, $getApiUrl, $apiResponse, $apiResults, $scope, $http) {
   report.on('dataSelected', event => {
+
+    var i, item, iLen;
+    // if () {
+
+    // }
+    for (i=0, iLen = event.detail.dataPoints.length; i< iLen; i++){
+        $scope.reportDataSet.push(event.detail.dataPoints[i]);
+    }
+        // tempArray.push({"identity":[{"test":1},{"value":3}]});
     console.log('dataSelected: ', event);
+    console.log('dataSelected: ', JSON.stringify(event.detail.dataPoints));
+    console.log('dataSelected: ', JSON.stringify($scope.reportDataSet));
+    // var qryString = getQueryString($scope.reportDataSet,$getApiUrl,$scope);
     var qryString = getQueryString(event.detail,$getApiUrl,$scope);
     // var qryString = '';
     // var data = event.detail;
@@ -213,54 +424,57 @@ function initializeDataSelection(report, $getApiUrl, $apiResponse, $apiResults, 
     $('#resultsIframe').attr('src',qryString);
 
     console.log("Refreshed on?",$scope.pdRefreshAuto);
+    console.log($('#pdRefreshOn').checked);
 
-    if ($('#pdRefreshOn').checked) {
-        makeCORSRequest('GET', $scope.pdApiGetUrl)
-        .then(function(response) {
-            // return makeRequest('GET', datums.url);
-            // console.log(response);
-            // console.log("Success!",response);
-            // $scope.pdItems = response.data;//.records;
-            $apiResponse.text(JSON.stringify(response.data));//$scope.pdItems));
-            // var table = document.getElementById("apiResults");
+    if ($scope.pdRefreshAuto) {
+        document.getElementById("apiResults").innerHTML = "";
+        populateTable($apiResults, $scope);
+      //   makeCORSRequest('GET', $scope.pdApiGetUrl)
+      //   .then(function(response) {
+      //       // return makeRequest('GET', datums.url);
+      //       // console.log(response);
+      //       // console.log("Success!",response);
+      //       // $scope.pdItems = response.data;//.records;
+      //       $apiResponse.text(JSON.stringify(response.data));//$scope.pdItems));
+      //       // var table = document.getElementById("apiResults");
 
 
-            var i, len, item, htmlText;
-            var itemList = [];
+      //       var i, len, item, htmlText;
+      //       var itemList = [];
 
-            $apiResults.innerHTML = "";
+      //       $apiResults.innerHTML = "";
 
-            for (i=0, len = response.data.length, htmlText=''; i < len; i++){
-            item = response.data[i];
+      //       for (i=0, len = response.data.length, htmlText=''; i < len; i++){
+      //       item = response.data[i];
 
-            htmlText += "<tr><td>" + item['Place Name'] + "</td>" +
-                        "<td>" + item.category + "</td>" +
-                        "<td>" + item.context + "</td>" +
-                        "<td>" + item.id + "</td>" +
-                        "<td>" + item.latitude + "</td>" +
-                        "<td>" + item.location_subtype + "</td>" +
-                        "<td>" + item.location_type + "</td>" +
-                        "<td>" + item.longitude + "</td>" +
-                        "<td>" + item.month + "</td>" +
-                        "<td>" + item['outcome-category'] + "</td>" +
-                        "<td>" + item['outcome-date'] + "</td>" +
-                        "<td>" + item.persistent_id + "</td>" +
-                        "<td>" + item['street-id'] + "</td>" +
-                        "<td>" + item['street-name'] + "</td></tr>"
-            }
-            // htmlText += "</tbody>"
-            $apiResults.append(htmlText);
+      //       htmlText += "<tr><td>" + item['Place Name'] + "</td>" +
+      //                   "<td>" + item.category + "</td>" +
+      //                   "<td>" + item.context + "</td>" +
+      //                   "<td>" + item.id + "</td>" +
+      //                   "<td>" + item.latitude + "</td>" +
+      //                   "<td>" + item.location_subtype + "</td>" +
+      //                   "<td>" + item.location_type + "</td>" +
+      //                   "<td>" + item.longitude + "</td>" +
+      //                   "<td>" + item.month + "</td>" +
+      //                   "<td>" + item['outcome-category'] + "</td>" +
+      //                   "<td>" + item['outcome-date'] + "</td>" +
+      //                   "<td>" + item.persistent_id + "</td>" +
+      //                   "<td>" + item['street-id'] + "</td>" +
+      //                   "<td>" + item['street-name'] + "</td></tr>"
+      //       }
+      //       // htmlText += "</tbody>"
+      //       $apiResults.append(htmlText);
 
     
-      // $scope.pdItems = itemList;
-      // console.log('htmlText:',htmlText);
-      // console.log("$scope.pdItems",$scope.pdItems);
+      // // $scope.pdItems = itemList;
+      // // console.log('htmlText:',htmlText);
+      // // console.log("$scope.pdItems",$scope.pdItems);
 
 
-            }, function(error) {
-                console.error("Failed!", error);
-                // console.log("An error occured");
-        });
+      //       }, function(error) {
+      //           console.error("Failed!", error);
+      //           // console.log("An error occured");
+      //   });
      // console.log('pd_items:',$scope.pdItems);
     } else {
         document.getElementById("tableOfResults").innerHTML = 'To view "Personal Data" drill down results click "Refresh PD List"';

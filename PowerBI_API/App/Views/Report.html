@@ -9,20 +9,31 @@
         </select>
         <span class="report-id-input-btn">
             <button ng-click="loadReport();" class="btn btn-default">Load Report</button>
-        
-    
         </span>
+       
+        <!-- <p>{{tileEmbedUrl}}</p> -->
     </div>
+
     <div class="likesReport"></div>
+    <!-- <iframe id="iFrameLikeDislikeTile" height="500px" width="900px"></iframe> -->
     <!-- <div ng-hide="true" id="dataSelectedContainer"></div> -->
-    <div id="getApiUrl">
+    <!-- <div>
+         Get from / embed from URL:<input class="urlInput" type="text" ng-model="getEmbedUrl" width="800px"></input>
+    </div> -->
+    <div id="getApiUrl" ng-show="false;">
     </div>
-    <div>
+    <div style="margin-top: 10px;">
         Refresh PD onselection?
-        <input id="pdRefreshOn" class="CheckBox" type="checkbox" checked data-toggle="toggle" ng-change="refreshButtonStatus()" ng-model="myData"></input>
+        <input id="pdRefreshOn" class="CheckBox" type="checkbox" 
+                checked data-toggle="toggle" 
+                ng-change="refreshButtonStatus()" 
+                ng-model="myData">
+        </input>
         <!-- <br> -->
         <button ng-click="hideThumbs();" class="btn btn-default" id="pdRefreshButton">Refresh PD List</button>
-        <button ng-click="clearTable();" class="btn btn-default" id="pdClearTableButton">Clear PD List</button>
+<!--         <button ng-click="clearTable();" class="btn btn-default" id="pdClearTableButton">Clear PD List</button>
+        <button ng-click="createDS();" class="btn btn-default" id="pdClearTableButton">Create L/D DS</button>
+        <button ng-click="getDatasets();" class="btn btn-default" id="pdClearTableButton">Get From URL</button> -->
     </div>
 </div>
 <div class="report-container" >
@@ -41,10 +52,30 @@
         {{item['Place Name']}}
     </div> -->
     <!-- <div ng-app="powerBI_API" ng-controller="reportCtrl"> -->
-    <div>
+    <div ng-show="!showTable();">
         <p id="tableOfResults"></p>
+    </div>
+    <div class="tableDiv" ng-show="showTable();">
+        <!-- <p id="tableOfResults"></p> -->
 
-        <table class="table table-bordered table-striped code-table" ng-show="showTable();">
+        <!-- <table class="table-responsive table-bordered table-striped code-table" ng-show="showTable();"> -->
+        <table class="crimePD" ng-show="showTable();">
+            <colgroup>
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+                <col class="defaultCol">
+            </colgroup>
             <thead>
                 <tr>
                     <th>Place Name</th>

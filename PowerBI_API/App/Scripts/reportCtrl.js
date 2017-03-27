@@ -7,19 +7,21 @@ angular.module('powerBI_API')
     console.log('idtoken: ' + window.sessionStorage.getItem('adal.idtoken'));
 	console.log('DataSelected is:');
     console.log($scope.dataSelected);
-	adalService.acquireToken("https://analysis.windows.net/powerbi/api");// {
+	var adalToken = adalService.acquireToken("https://analysis.windows.net/powerbi/api");// {
+    console.log("getCachedToke:",adalService.getCachedToken(paramJSON.clientId));
     var token = window.sessionStorage.getItem('adal.access.token.keyhttps://analysis.windows.net/powerbi/api'); 
     // var dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-dd HH:mm:ss Z");
-
+    console.log("toke:",token);
     $scope.displayTable = false;
     $scope.pdRefreshAuto = false;
   	$scope.reportIDSelection = null;
   	$scope.testAccounts = [];
+  	$scope.reportDataSet = [];
 	$http({
-	method: 'GET',
-	url: 'https://api.powerbi.com/beta/myorg/reports',
-	headers: {
-	'Authorization': "Bearer " + token //'Bearer ' + token
+		method: 'GET',
+		url: 'https://api.powerbi.com/beta/myorg/reports',
+		headers: {
+		'Authorization': "Bearer " + token //'Bearer ' + token
 	}}).then(function(response) {
 
 	      if (response != "undefined") {
@@ -51,7 +53,8 @@ angular.module('powerBI_API')
 
 	var userName = adalService.userInfo.userName;
 	var selectedReportId, dateTimeNow, dataToPost;
-	var postUrl = "https://api.powerbi.com/v1.0/myorg/datasets/9e6792e9-bba0-4289-afce-85dec1ee482b/tables/ReportLikes/rows";
+	var postUrl = "https://api.powerbi.com/v1.0/myorg/datasets/af02810a-f0b9-4624-888a-85d97cbd720b/tables/APILikeDislike/rows";
+	// var postUrl = "https://api.powerbi.com/beta/e16346ae-eec1-4260-ab51-ac102fa054be/datasets/9e6792e9-bba0-4289-afce-85dec1ee482b/rows?key=%2BgyfC4JwCV%2FE%2Fv6kHr1%2FcegLHyfZdDI7nD%2Bmh8iab12dvqpMiOP9RaG6ROd0Mdyqs5%2Bxia8G91Lq038vYkT7dw%3D%3D";
 	//"https://api.powerbi.com/beta/e16346ae-eec1-4260-ab51-ac102fa054be/datasets/9e6792e9-bba0-4289-afce-85dec1ee482b/rows?key=%2BgyfC4JwCV%2FE%2Fv6kHr1%2FcegLHyfZdDI7nD%2Bmh8iab12dvqpMiOP9RaG6ROd0Mdyqs5%2Bxia8G91Lq038vYkT7dw%3D%3D";
 
     // $scope.pdApiGetUrl = 'https://localhost:3000/api/crime_stats?category=bicycle-theft&outcome-category=Investigation%20complete%3B%20no%20suspect%20identified';//&Place%20Name=E05000128';
@@ -111,6 +114,17 @@ angular.module('powerBI_API')
 	
 	$scope.selectedReportId = "f3b712c4-e2ad-452c-93e6-76464a13177f";
 
+	$scope.createDS = function () {
+		createLikeDislikeDataset(token);
+		// createLikeDislikeDatasetHttp(token, $http);
+	}
+
+	$scope.getDatasets = function () {
+		// createLikeDislikeDataset(token);
+		testGetUsingXMLHttp(token, $scope.getEmbedUrl);
+		// testDelUsingXMLHttp(token);
+	}
+
     $scope.showSelectedValue = function (mySelect){
     	console.log("Report selected:",mySelect);
     	// $scope.selectedReportId = "f3b712c4-e2ad-452c-93e6-76464a13177f";
@@ -129,35 +143,38 @@ angular.module('powerBI_API')
 
 	$scope.likeReport = function () {
 		selectedReportId = $scope.selectedReportId;
-		dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-ddTHH:mm:sss") + 'Z';
-		dataToPost = [
+		dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-ddTHH:mm:ss") + 'Z';
+		console.log(typeof dateTimeNow,dateTimeNow);
+		dataToPost = {"rows":[
 						{
 						"LikeDislike" :"Like",
 						"Report" :selectedReportId,
-						"TimeStamp" :dateTimeNow,
+						"TimeStamp" :dateTimeNow, 
 						"ReportedBy" :userName,
 						"value": 1
 						}
-					 ];
+					 ]};
+
+		 postDataXMLHttp(token,dataToPost,'https://api.powerbi.com/v1.0/myorg/datasets/af02810a-f0b9-4624-888a-85d97cbd720b/tables/RawLikeDislike/rows');
 		// var xhr = new XMLHttpRequest();
 		// xhr.open("POST", postUrl);
 		// xhr.setRequestHeader("Content-Type", "application/json");
 		// xhr.setRequestHeader('Authorization', "Bearer " + token);
 		// xhr.send(JSON.stringify(dataToPost));
 
-		var req = {
-			method: 'POST',
-			url: postUrl,
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token
-			},
-			data: dataToPost
-		};
+		// var req = {
+		// 	method: 'POST',
+		// 	url: postUrl,
+		// 	headers: {
+		// 		'Content-Type': 'application/json',
+		// 		'Authorization': 'Bearer ' + token
+		// 	},
+		// 	data: dataToPost //JSON.stringify(dataToPost)
+		// };
 
-		$http(req).then(function(response) {
-			console.log('response' , response);
-		});
+		// $http(req).then(function(response) {
+		// 	console.log('response' , response);
+		// });
 
 		// console.log("post data succesful:", dataToPost);
 		// alert('Like');
@@ -165,22 +182,19 @@ angular.module('powerBI_API')
 
 	$scope.dislikeReport = function () {
 		selectedReportId = $scope.selectedReportId;
-		dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-ddTHH:mm:sss") + 'Z';
-		dataToPost = [
+		dateTimeNow = $filter('date')(Date.now(),"yyyy-MM-ddTHH:mm:ss") + 'Z';
+		console.log(typeof dateTimeNow,dateTimeNow);
+		dataToPost = {"rows":[
 						{
 						"LikeDislike" :"Dislike",
 						"Report" :selectedReportId,
-						"TimeStamp" :dateTimeNow,
+						"TimeStamp" :dateTimeNow, 
 						"ReportedBy" :userName,
 						"value": 1
 						}
-					 ];
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", postUrl);
-		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.send(JSON.stringify(dataToPost));
+					 ]};
 
-		console.log("post data succesful:", dataToPost);
+		 postDataXMLHttp(token,dataToPost,'https://api.powerbi.com/v1.0/myorg/datasets/af02810a-f0b9-4624-888a-85d97cbd720b/tables/RawLikeDislike/rows');
 	}
 
 	// var scope.showThumb = false;
@@ -210,10 +224,72 @@ angular.module('powerBI_API')
 
 	$scope.clearTable = function () {
 		document.getElementById("apiResults").innerHTML = "";
+		// console.log("embedURL:", $scope.getEmbedUrl);
+		// var likeDislikeEmbedUrl = $scope.getEmbedUrl;
+		// // var likeDislikeEmbedUrl = "https://app.powerbi.com/embed?dashboardId=59fd1bf1-2c2f-4851-9852-90e139dde162&tileId=911bbb71-4484-439a-a707-68919686f02e";
+		// // var likeDislikeEmbedUrl = "https://app.powerbi.com/embed?dashboardId=59fd1bf1-2c2f-4851-9852-90e139dde162&tileId=3d68ec59-dda7-489e-afbb-7b194f81a661";
+		// // var likeDislikeEmbedUrl = "https://app.powerbi.com/embed?dashboardId=4a80b974-95c1-45db-bbeb-2f1e1828cb13&tileId=3cb62190-9b7e-42c5-bad6-a2a1d11ce177";
+		// var iFrame = document.getElementById('iFrameLikeDislikeTile');
+		// iFrame.src = likeDislikeEmbedUrl;
+
+		// iFrame.onload = postActionLoadTitle(iFrame, token);
+
+		// powerbi.accessToken = token;
+		// console.log("txtAccessToken:",txtAccessToken);
+		// var config= {
+		//     type: 'tile',
+		//     tokenType: 'Bearer',
+		//     accessToken: token,
+		//     embedUrl: likeDislikeEmbedUrl,
+		//     id: "3cb62190-9b7e-42c5-bad6-a2a1d11ce177",
+		//     // settings: {
+		//     //     filterPaneEnabled: true,
+		//     //     navContentPaneEnabled: true
+		//     // }
+		// };
+
+		// console.log(config);
+
+    // var messageStructure = {
+    //     action: "loadTile",
+    //     accessToken: $token,
+    //     height: 500,
+    //     width: 500
+    // };
+    // var message = JSON.stringify(messageStructure);
+
+    // // Push the message
+    // $iFrame.contentWindow.postMessage(message, "*");
+
+
+		// Grab the reference to the div HTML element that will host the report.
+		// var tileContainer = $('#likesReport')[0];
+
+		// // Embed the report and display it within the div container.
+		// var tile = powerbi.embed(tileContainer, config);
+		
+		// // initializeDataSelection(report,$('#getApiUrl'),$('#apiResponse'), $('#apiResults'),$scope,$http);
+		// // applyFilters(report,$scope);
+		// // console.log($scope.dataSelected);
+		// // var qryString = getDataSelection(report);//,qryString);
+		// // console.log(qryString);
+
+		// // Report.off removes a given event handler if it exists.
+		// tile.off("loaded");
+
+		// // Report.on will add an event handler which prints to Log window.
+		// tile.on("loaded", function() {
+		//     console.log("Loaded");
+		// });
+
+
+
 	}
 
-	console.log("User Info:",adalService.userInfo);
-	console.log("date now:",dateTimeNow);
+	// console.log("User Info:",adalService.userInfo);
+	// console.log("date now:",dateTimeNow);
+
+
 
     $scope.loadReport = function () {
 
@@ -225,6 +301,12 @@ angular.module('powerBI_API')
 
 
 		var txtEmbedUrl = 'https://app.powerbi.com/reportEmbed?reportId=' + reportId;//$('#pbirptid').val();//$('#txtReportEmbed').val();
+		// var likeDislikeEmbedUrl = "https://app.powerbi.com/embed?dashboardId=59fd1bf1-2c2f-4851-9852-90e139dde162&tileId=911bbb71-4484-439a-a707-68919686f02e";
+
+		// var iFrame = document.getElementById('iFrameLikeDislikeTile');
+		// iFrame.src = likeDislikeEmbedUrl;
+
+		// iFrame.onload = postActionLoadTitle(iFrame, token);
 
 		// Read report Id from textbox
 		var txtEmbedReportId = reportId;//$('#pbirptid').val();
@@ -234,6 +316,7 @@ angular.module('powerBI_API')
 		// This also includes settings and options such as filters.
 		// You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
 		powerbi.accessToken = txtAccessToken;
+		console.log("txtAccessToken:",txtAccessToken);
 		var config= {
 		    type: 'report',
 		    tokenType: 'Bearer',

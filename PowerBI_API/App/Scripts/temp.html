@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Power BI Visual Renderer</title>
+    <script type="text/javascript">
+        var isEmbedded = true;
+        var powerbi = {
+            session : {
+                userInfo: {
+                    alternateEmail: ''
+                }
+            }
+        };
+
+        powerbi.build = '13.0.1700.1439';
+        powerbi.telemetrySamplingRules = 'standard';
+        var clusterUri =  'https://WABI-UK-SOUTH-redirect.analysis.windows.net';
+        var telemetrySessionId =  '68e386e7-4ff4-4247-abde-86429b1fbfe1';
+        var localyticsInstrKey = 'd481bcc9809fe5c23d780ae-ff4d768c-3469-11e4-a38d-009c5fda0a25';
+        var appInsightsV2InstrKey = '00406067-1af3-44c5-a2c1-4a57dd50194c';
+    </script>
+</head>
+<body>
+    <div id="compositeTile" class="visual-compositeTile">
+        <div class="powerbi-spinner">
+            <div class="spinner">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+        </div>
+        <div id="embedTile" style="display: none">
+            <div id="tileHeader" class="visual-tileHeader">
+                <div id="tileTitle" class="visual-title"></div>
+                <div id="tileSubTitle" class="visual-subTitle"></div>
+            </div>
+            <div class="visual-tile">
+                <div id="content" class="visual-tileContent">
+                    <div id="chart1" class="visual chart-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="errorContainer" style="display: none">
+        <div class="contentErrorImage">
+            <img id="errorImageContainer" src="13.0.1700.1439/images/errors/owl_searching.png" />
+        </div>
+        <div class="contentErrorText"></div>
+    </div>
+    <div id="contentDisabledContainer" style="display: none">
+        <div id="contentDisabledMessage">
+            <div id="contentDisabledIcon" class="glyphicon pbi-glyph-error glyph-med"></div>
+            <div id="contentDisabledText"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js"></script>
+    <script>
+        // Implement enqueueCommand inline and defer localytics loading so page load is not blocked
+        LocalyticsGlobal = 'localytics';
+        localytics = { enqueueCommand: function () { this.q.push(arguments); }, t: Number(new Date), q: [] };
+    </script>
+    <script type="text/javascript" src="13.0.1700.1439/scripts/powerbivisualrenderer.externals.min.js"></script>
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/visuals.min.js"></script>
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/utility.min.js"></script>
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/localytics.min.js"></script>
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/data.min.js"></script>
+
+    <link rel="stylesheet" href="13.0.1700.1439/styles/visuals.min.css" />
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/visualhostcore.min.js"></script>
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/powerbivisualrenderer.min.js"></script>
+
+    <link rel="stylesheet" href="13.0.1700.1439/styles/visualRenderer.min.css" />
+
+    <script type="text/javascript" src="13.0.1700.1439/scripts/styleLibrary.js"></script>
+
+</body>
+</html>
